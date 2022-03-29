@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-export const Card = styled.div`
+const StyledCard = styled.div`
   background: white;
   padding: 2rem;
   border-radius: 0.5rem;
@@ -9,3 +9,19 @@ export const Card = styled.div`
     2.1px 4.1px 5.2px -1.7px rgba(0, 0, 0, 0.1),
     5px 10px 12.6px -2.5px rgba(0, 0, 0, 0.1);
 `;
+
+const CardHeading = styled.h2``;
+
+export interface CardProps {
+  heading?: string;
+  children: React.ReactNode;
+}
+
+export function Card({ heading, children }: CardProps) {
+  return (
+    <StyledCard>
+      {heading && <CardHeading>{heading}</CardHeading>}
+      {children}
+    </StyledCard>
+  );
+}

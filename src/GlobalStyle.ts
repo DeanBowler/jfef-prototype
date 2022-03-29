@@ -23,7 +23,7 @@ export const GlobalStyle = createGlobalStyle`
 
       font-size: 16px;
 
-      background-color: hsl(235deg 60% 50%);
+      background-color: hsl(345deg 80% 60%);
       color: rgba(255,255,255,0.9);
       border: none;
       border-radius: 0.5rem;
@@ -32,30 +32,30 @@ export const GlobalStyle = createGlobalStyle`
       width: 100%;
 
       :hover {
-        background-color: hsl(240deg 100% 20%);
+        background-color: hsl(345deg 70% 50%);
       }
     }
 
     input {
       font-family: 'GT Walsheim';
-      background:  hsl(230deg 30% 92%);
-      color: hsla(240deg 100% 20% / 0.85);
+      background:  hsl(345deg 30% 92%);
+      color: hsla(345deg 100% 20% / 0.85);
       border: none;
       border-radius: 0.5rem;
       padding: 0.75rem 1rem;
       font-size: 1.125rem;
 
       &::placeholder {
-        color: hsla(240deg 100% 20% / 0.6);
+        color: hsl(345deg 40% 55%);
       }
 
       &:focus {
-        outline: 2px solid hsl(240deg 30% 60%);
+        outline: 2px solid hsl(345deg 30% 60%);
       }
     }
 
     label {
-      color: hsla(240deg 100% 20% / 0.85);
+      color: hsla(345deg 100% 20%);
     }
 
     &:after {
@@ -72,7 +72,7 @@ export const GlobalStyle = createGlobalStyle`
   }
 
   h1, h2, h3 {
-    color: hsla(240deg 100% 20% / 0.75);
+    color: hsl(345deg 60% 35%);
   }
 
   h2, h3 {
