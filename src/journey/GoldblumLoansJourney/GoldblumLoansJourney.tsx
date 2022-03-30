@@ -1,3 +1,4 @@
+import { Application } from '@/api/application';
 import Glasses from '@/icons/Glasses';
 import { JourneyFlow, JourneyStageScreens } from '@/jfef/JourneyFlow';
 import { Route, Routes } from 'react-router-dom';
@@ -7,9 +8,10 @@ import { EmploymentScreen } from './screens/EmploymentScreen';
 import { GamblingScreen } from './screens/GamblingScreen';
 import { SignDocsScreen } from './screens/SignDocsScreen';
 
+// TODO: Move this to a journey builder hook or smth
 const goldblumScreens: JourneyStageScreens[] = [
   {
-    stage: 'provideData',
+    stage: 'application.provideData', // TODO: more strong typing
     journey: [
       {
         name: 'about',
@@ -34,7 +36,7 @@ const goldblumScreens: JourneyStageScreens[] = [
     ]
   },
   {
-    stage: 'signDocs',
+    stage: 'application.sign',
     additional: [
       {
         name: 'sign',
@@ -59,8 +61,13 @@ export function GoldblumLoansJourney() {
           element={
             <JourneyFlow
               screens={goldblumScreens}
-              initialState={{}}
-              stateMapper={() => ({ stage: 'provideData' })}
+              initialState={{} as Application}
+              stateMapper={(application) => ({
+                stage:
+                  application.requestedActions?.[0]?.type ??
+                  'application.provideData',
+                requires: application?.requestedActions?.[0]?.dataType ?? []
+              })}
             />
           }
         />

@@ -1,11 +1,15 @@
-import { createContext, useContext } from 'react';
+import React, { createContext, useContext } from 'react';
 
-interface JourneyContextProps {
-  step(): void;
+interface JourneyContextProps<TState> {
+  step(state?: TState): void;
 }
 
-export const JourneyContext = createContext<JourneyContextProps>(
-  {} as JourneyContextProps
+export const JourneyContext = createContext<JourneyContextProps<unknown>>(
+  {} as JourneyContextProps<unknown>
 );
 
-export const useJourney = () => useContext(JourneyContext);
+export function useJourney<TState = {}>() {
+  return useContext(
+    JourneyContext as React.Context<JourneyContextProps<TState>>
+  );
+}

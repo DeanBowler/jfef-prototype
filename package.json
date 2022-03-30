@@ -13,6 +13,7 @@
     "optics-ts": "^2.3.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "react-hook-form": "^7.28.1",
     "react-query": "^3.34.19",
     "react-router-dom": "^6.2.2",
     "styled-components": "^5.3.5"

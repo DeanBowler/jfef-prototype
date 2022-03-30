@@ -40,12 +40,13 @@ export function JourneyFlow<TState>({
 }: JourneyFlowProps<TState>) {
   const initial = useRef(false);
 
-  const [state, setState] = useState(initialState);
+  // TODO: store mapped state here
+  const state = useRef(initialState);
 
   const { '*': stepFromPath } = useParams();
 
   useEffect(() => {
-    setState((curr) => curr ?? initialState);
+    state.current = state.current ?? initialState;
   }, [initialState]);
 
   const [history, setHistory] = useAtom(journeyHistoryAtom);
@@ -55,7 +56,7 @@ export function JourneyFlow<TState>({
   const screenRoutes = useMemo(() => screens.flatMap(getAllScreens), [screens]);
 
   const isCurrentStepValid = useCallback(() => {
-    const mappedState = state && stateMapper(state);
+    const mappedState = state.current && stateMapper(state.current);
 
     const stageForCurrentState = screens.find(
       (s) => s.stage === mappedState?.stage
@@ -64,16 +65,16 @@ export function JourneyFlow<TState>({
     return getAllScreens(stageForCurrentState).some(
       (s) => s.path === stepFromPath
     );
-  }, [state, stateMapper, stepFromPath]);
+  }, [stateMapper, stepFromPath]);
 
   const getNextScreen = useCallback(() => {
-    const mappedState = state && stateMapper(state);
+    const mappedState = state.current && stateMapper(state.current);
 
     const currentStageScreens = screens.find(
       (s) => s.stage === mappedState?.stage
     );
 
-    if (mappedState?.requires) {
+    if (mappedState?.requires?.length) {
       const additionalMatchingRequirements =
         currentStageScreens?.additional?.find((screen) =>
           screen.provides?.some((p) => mappedState?.requires?.includes(p))
@@ -95,7 +96,7 @@ export function JourneyFlow<TState>({
     )[0];
 
     return match;
-  }, [state, stateMapper, history, stepFromPath]);
+  }, [stateMapper, history, stepFromPath]);
 
   const gotoValidScreen = useCallback(() => {
     const nextScreen = getNextScreen();
@@ -105,19 +106,24 @@ export function JourneyFlow<TState>({
     }
   }, [history, getNextScreen, navigate]);
 
-  const step = useCallback(() => {
-    const nextScreen = getNextScreen();
+  const step = useCallback(
+    (updateState?: TState) => {
+      if (updateState) state.current = updateState;
 
-    if (nextScreen) {
-      if (Boolean(stepFromPath)) {
-        setHistory((h) => [...h, { screenName: stepFromPath! }]);
+      const nextScreen = getNextScreen();
+
+      if (nextScreen) {
+        if (Boolean(stepFromPath)) {
+          setHistory((h) => [...h, { screenName: stepFromPath! }]);
+        }
+        navigate({ pathname: nextScreen.path });
       }
-      navigate({ pathname: nextScreen.path });
-    }
-  }, [history, setHistory, getNextScreen, navigate]);
+    },
+    [history, setHistory, getNextScreen, navigate]
+  );
 
   useEffect(() => {
-    if (state && initial.current === false) {
+    if (state.current && initial.current === false) {
       initial.current = true;
 
       if (!Boolean(stepFromPath)) {
@@ -133,7 +139,7 @@ export function JourneyFlow<TState>({
         }
       }
     }
-  }, [state, step]);
+  }, [step]);
 
   return (
     <JourneyContext.Provider value={{ step }}>

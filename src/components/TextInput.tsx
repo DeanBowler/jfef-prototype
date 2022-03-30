@@ -1,26 +1,43 @@
 import { nanoid } from 'nanoid';
+import React from 'react';
 import { useRef } from 'react';
 import styled from 'styled-components';
 
 interface TextInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
   explainer?: string;
+  error?: string;
 }
 
-export function TextInput({
-  label,
-  id = `input-${nanoid()}`,
-  explainer,
-  ...props
-}: TextInputProps) {
-  return (
-    <InputContainer>
-      <InputLabel htmlFor={id}>{label}</InputLabel>
-      <input type="text" {...props} id={id} />
-      {explainer && <InputExplainer>{explainer}</InputExplainer>}
-    </InputContainer>
-  );
-}
+export const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
+  (
+    {
+      label,
+      id = `input-${nanoid()}`,
+      explainer,
+      error,
+      ...props
+    }: TextInputProps,
+    ref
+  ) => {
+    return (
+      <InputContainer>
+        <InputLabel htmlFor={id}>{label}</InputLabel>
+        <input
+          type="text"
+          {...props}
+          id={id}
+          ref={ref}
+          aria-describedby={explainer ? `${id}-explainer` : undefined}
+        />
+        {error && <InputError>{error}</InputError>}
+        {explainer && (
+          <InputExplainer id={`${id}-explainer`}>{explainer}</InputExplainer>
+        )}
+      </InputContainer>
+    );
+  }
+);
 
 const InputContainer = styled.div`
   display: flex;
@@ -30,6 +47,11 @@ const InputContainer = styled.div`
 
 const InputLabel = styled.label`
   margin-bottom: 0.25rem;
+`;
+
+const InputError = styled.div`
+  color: hsl(345deg 80% 60%);
+  margin-top: 0.25rem;
 `;
 
 const InputExplainer = styled.div`
