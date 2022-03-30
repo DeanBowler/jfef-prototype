@@ -35,49 +35,45 @@ const getAllScreens = (
 export function JourneyFlow<TState>({
   screens,
   initialState,
-  invalidStateBehaviour,
+  invalidStateBehaviour = 'redirect',
   stateMapper
 }: JourneyFlowProps<TState>) {
-  const initial = useRef(false);
-
-  // TODO: store mapped state here
-  const state = useRef(initialState);
-
-  const { '*': stepFromPath } = useParams();
-
-  useEffect(() => {
-    state.current = state.current ?? initialState;
-  }, [initialState]);
-
-  const [history, setHistory] = useAtom(journeyHistoryAtom);
-
   const navigate = useNavigate();
 
+  const { '*': stepFromPath } = useParams(); // This is a bit sussy
+  const [history, setHistory] = useAtom(journeyHistoryAtom);
+
+  const hasInitialised = useRef(false);
+  const state = useRef(initialState && stateMapper(initialState));
   const screenRoutes = useMemo(() => screens.flatMap(getAllScreens), [screens]);
 
-  const isCurrentStepValid = useCallback(() => {
-    const mappedState = state.current && stateMapper(state.current);
+  /**
+   * Handle incoming state from initial state, where state has not yet been set
+   */
+  useEffect(() => {
+    if (!state.current && initialState)
+      state.current = stateMapper(initialState);
+  }, [initialState]);
 
+  const isCurrentStepValid = useCallback(() => {
     const stageForCurrentState = screens.find(
-      (s) => s.stage === mappedState?.stage
+      (s) => s.stage === state.current?.stage
     );
 
     return getAllScreens(stageForCurrentState).some(
       (s) => s.path === stepFromPath
     );
-  }, [stateMapper, stepFromPath]);
+  }, [stepFromPath]);
 
   const getNextScreen = useCallback(() => {
-    const mappedState = state.current && stateMapper(state.current);
-
     const currentStageScreens = screens.find(
-      (s) => s.stage === mappedState?.stage
+      (s) => s.stage === state.current?.stage
     );
 
-    if (mappedState?.requires?.length) {
+    if (state.current?.requires?.length) {
       const additionalMatchingRequirements =
         currentStageScreens?.additional?.find((screen) =>
-          screen.provides?.some((p) => mappedState?.requires?.includes(p))
+          screen.provides?.some((p) => state.current?.requires?.includes(p))
         );
       return additionalMatchingRequirements;
     }
@@ -98,6 +94,9 @@ export function JourneyFlow<TState>({
     return match;
   }, [stateMapper, history, stepFromPath]);
 
+  /**
+   * Seeks the most recent screen in the current journey using the current state
+   */
   const gotoValidScreen = useCallback(() => {
     const nextScreen = getNextScreen();
 
@@ -106,9 +105,12 @@ export function JourneyFlow<TState>({
     }
   }, [history, getNextScreen, navigate]);
 
+  /**
+   * Accept state for next step and perform redirects
+   */
   const step = useCallback(
     (updateState?: TState) => {
-      if (updateState) state.current = updateState;
+      if (updateState) state.current = stateMapper(updateState);
 
       const nextScreen = getNextScreen();
 
@@ -122,9 +124,12 @@ export function JourneyFlow<TState>({
     [history, setHistory, getNextScreen, navigate]
   );
 
+  /**
+   * Handle initial and invalid states
+   */
   useEffect(() => {
-    if (state.current && initial.current === false) {
-      initial.current = true;
+    if (state.current && hasInitialised.current === false) {
+      hasInitialised.current = true;
 
       if (!Boolean(stepFromPath)) {
         gotoValidScreen();

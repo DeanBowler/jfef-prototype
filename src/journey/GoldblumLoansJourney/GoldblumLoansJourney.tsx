@@ -1,7 +1,7 @@
 import { Application } from '@/api/application';
 import Glasses from '@/icons/Glasses';
 import { JourneyFlow, JourneyStageScreens } from '@/jfef/JourneyFlow';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { AboutScreen } from './screens/AboutScreen';
 import { EmploymentScreen } from './screens/EmploymentScreen';
@@ -37,7 +37,7 @@ const goldblumScreens: JourneyStageScreens[] = [
   },
   {
     stage: 'application.sign',
-    additional: [
+    journey: [
       {
         name: 'sign',
         path: 'sign',
@@ -48,6 +48,8 @@ const goldblumScreens: JourneyStageScreens[] = [
 ];
 
 export function GoldblumLoansJourney() {
+  const navigate = useNavigate();
+
   return (
     <div>
       <h1>
@@ -55,7 +57,14 @@ export function GoldblumLoansJourney() {
         Goldblum Loans
       </h1>
       <Routes>
-        <Route path="/" element={<div>Welcome</div>} />
+        <Route
+          path="/"
+          element={
+            <div>
+              <button onClick={() => navigate('/apply')}>Get started</button>
+            </div>
+          }
+        />
         <Route
           path="/apply/*"
           element={

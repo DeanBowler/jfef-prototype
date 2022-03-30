@@ -2,6 +2,9 @@ export interface ApplicantData {
   firstName: string;
   lastName: string;
   gamblingSpending: number;
+  employer: string;
+  jobTitle: string;
+  incomePcm: number;
 }
 
 interface ApplicationState {
@@ -26,19 +29,30 @@ let fakeServerState: ApplicationState = {
   applicantData: {}
 };
 
+const fakeDataActions = () => [
+  {
+    type: 'application.provideData',
+    dataType:
+      fakeServerState.applicantData.firstName === 'Barry' &&
+      fakeServerState.applicantData.gamblingSpending === undefined
+        ? ['gambling']
+        : []
+  }
+];
+
+const fakeSignActions = () => [
+  {
+    type: 'application.sign',
+    dataType: []
+  }
+];
+
 export const getApplication = () => {
   return Promise.resolve<Application>({
     applicantData: fakeServerState.applicantData,
-    requestedActions: [
-      {
-        type: 'application.provideData',
-        dataType:
-          fakeServerState.applicantData.firstName === 'Barry' &&
-          fakeServerState.applicantData.gamblingSpending === undefined
-            ? ['gambling']
-            : []
-      }
-    ]
+    requestedActions: fakeServerState.applicantData.incomePcm
+      ? fakeSignActions()
+      : fakeDataActions()
   });
 };
 

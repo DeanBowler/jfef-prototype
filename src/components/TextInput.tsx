@@ -1,11 +1,10 @@
 import { nanoid } from 'nanoid';
 import React from 'react';
-import { useRef } from 'react';
 import styled from 'styled-components';
 
 interface TextInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
-  explainer?: string;
+  explainer?: string | { title: string; body: string };
   error?: string;
 }
 
@@ -32,7 +31,16 @@ export const TextInput = React.forwardRef<HTMLInputElement, TextInputProps>(
         />
         {error && <InputError>{error}</InputError>}
         {explainer && (
-          <InputExplainer id={`${id}-explainer`}>{explainer}</InputExplainer>
+          <InputExplainer id={`${id}-explainer`}>
+            {typeof explainer === 'string' ? (
+              explainer
+            ) : (
+              <>
+                <ExplainerHeading>{explainer.title}</ExplainerHeading>
+                {explainer.body}
+              </>
+            )}
+          </InputExplainer>
         )}
       </InputContainer>
     );
@@ -73,4 +81,10 @@ const InputExplainer = styled.div`
 
   border: 2px solid hsl(25deg 80% 50%);
   color: hsl(345deg 60% 35%);
+`;
+
+const ExplainerHeading = styled.div`
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  font-size: 1.125rem;
 `;
